@@ -75,10 +75,17 @@ void opcontrol(void);
 inline int intake = 0;
 inline int rollerIntake = 0;
 
+<<<<<<< HEAD
 inline pros::MotorGroup left_motors({-1, -2, -3}, pros::MotorGearset::blue);
 inline pros::MotorGroup right_motors({8, 9, 10}, pros::MotorGearset::blue);
 
 inline pros::Motor intakeMotor(16, pros::MotorGearset::blue);
+=======
+inline pros::MotorGroup left_motors({-20, -19, -18}, pros::MotorGearset::blue);
+inline pros::MotorGroup right_motors({11, 12, 13}, pros::MotorGearset::blue);
+
+inline pros::Motor intakeMotor(16);
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 
 inline pros::Imu imu(17);
 

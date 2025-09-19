@@ -14,5 +14,9 @@ compile_commands.json
 temp.log
 temp.errors
 *.ini
+<<<<<<< HEAD
 .d/
 project.pros
+=======
+.d/
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd

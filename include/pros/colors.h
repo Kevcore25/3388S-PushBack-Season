@@ -6,7 +6,11 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
+<<<<<<< HEAD
  * Copyright (c) 2017-2020 Purdue University ACM SIGBots.
+=======
+ * \copyright (c) 2017-2024, Purdue University ACM SIGBots.
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License v. 2.0. If a copy of the MPL was not distributed with this

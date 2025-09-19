@@ -7,7 +7,11 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
+<<<<<<< HEAD
  * \copyright (c) 2017-2023, Purdue University ACM SIGBots.
+=======
+ * \copyright (c) 2017-2024, Purdue University ACM SIGBots.
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -77,7 +81,11 @@ class Distance : public Device {
 	 * void opcontrol() {
 	  Distance distance(DISTANCE_PORT);
 	 *   while (true) {
+<<<<<<< HEAD
 	 *     printf("Distance confidence: %d\n", distance.get());
+=======
+	 *     printf("Distance: %d\n", distance.get());
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 	 *     delay(20);
 	 *   }
 	 * }
@@ -104,7 +112,11 @@ class Distance : public Device {
 	 * void opcontrol() {
 	  Distance distance(DISTANCE_PORT);
 	 *   while (true) {
+<<<<<<< HEAD
 	 *     printf("Distance confidence: %d\n", distance.get_distance());
+=======
+	 *     printf("Distance: %d\n", distance.get_distance());
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 	 *     delay(20);
 	 *   }
 	 * }
@@ -179,7 +191,11 @@ class Distance : public Device {
 	 * void opcontrol() {
 	  Distance distance(DISTANCE_PORT);
 	 *   while (true) {
+<<<<<<< HEAD
 	 *     printf("Distance confidence: %d\n", distance.get_object_size());
+=======
+	 *     printf("Distance object size: %d\n", distance.get_object_size());
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 	 *     delay(20);
 	 *   }
 	 * }
@@ -204,7 +220,11 @@ class Distance : public Device {
 	 * void opcontrol() {
 	 *	Distance distance(DISTANCE_PORT);
 	 *   while (true) {
+<<<<<<< HEAD
 	 *     printf("Distance Object velocity: %f\n", distance.get_object_velocity());
+=======
+	 *     printf("Distance object velocity: %f\n", distance.get_object_velocity());
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 	 *     delay(20);
 	 *   }
 	 * }

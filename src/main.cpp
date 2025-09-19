@@ -1,10 +1,22 @@
 #include "main.h"
+<<<<<<< HEAD
 #include "pros/device.hpp"
 #include "pros/misc.h"
 #include "robodash/api.h" // IWYU pragma: keep
 #include "liblvgl/lvgl.h" // IWYU pragma: keep
 #include "pros/misc.hpp"
 #include "pros/motors.h"
+=======
+#include "lemlib/api.hpp" // IWYU pragma: keep
+#include "robodash/api.h" // IWYU pragma: keep
+
+/**
+ * Runs initialization code. This occurs as soon as the program is started.
+ *
+ * All other competition modes are blocked by initialize; it is recommended
+ * to keep execution time for this mode under a few seconds.
+ */
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 
 bool imudc = false;
 
@@ -75,11 +87,27 @@ void competition_initialize() {}
  */
 void autonomous() {}
 
+<<<<<<< HEAD
 bool gutterOn = false;
 bool doorOn = false;
 
 bool onHoldMode = false;
 
+=======
+/**
+ * Runs the operator control code. This function will be started in its own task
+ * with the default priority and stack size whenever the robot is enabled via
+ * the Field Management System or the VEX Competition Switch in the operator
+ * control mode.
+ *
+ * If no competition control is connected, this function will run immediately
+ * following initialize().
+ *
+ * If the robot is disabled or communications is lost, the
+ * operator control task will be stopped. Re-enabling the robot will restart the
+ * task, not resume it from where it left off.
+ */
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 void opcontrol() {	
 	while (true) {
 		// DRIVE FUNCTION
@@ -87,14 +115,21 @@ void opcontrol() {
 		int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);  
 		int l2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
 		int r2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2);
+<<<<<<< HEAD
 
 		// Drive function (Lemlib)
 		if (abs(leftY) > 5) // Controller deadband area
+=======
+  
+		// Drive function (Lemlib)
+		if (abs(leftY) > 5) 
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 			chassis.arcade(leftY, rightX, false, 0.4);
   
 		// Activate intake
 		intake = r2 * 100 + l2 * -100;
 
+<<<<<<< HEAD
 		// BUTTONS
 
 		// A: Gutter activation
@@ -120,6 +155,8 @@ void opcontrol() {
 			chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
 		}
 
+=======
+>>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 		// Delay to save resources. 10 MS for low latency
 		pros::delay(10);
 	}
