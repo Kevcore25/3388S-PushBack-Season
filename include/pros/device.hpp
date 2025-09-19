@@ -6,11 +6,7 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
-<<<<<<< HEAD
  * \copyright (c) 2017-2021, Purdue University ACM SIGBots.
-=======
- * \copyright (c) 2017-2024, Purdue University ACM SIGBots.
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -55,10 +51,6 @@ enum class DeviceType {
 	adi = 12, ///< This port is an ADI expander
 	optical = 16, ///< An optical sensor is plugged into the port
 	gps = 20, ///< A GPS sensor is plugged into the port
-<<<<<<< HEAD
-=======
-	aivision = 29, ///< An AI vision sensor is plugged into the port
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 	serial = 129, ///< A serial device is plugged into the port
 	undefined = 255 ///< The device type is not defined, or is not a valid device
 };

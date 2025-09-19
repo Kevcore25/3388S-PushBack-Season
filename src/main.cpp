@@ -1,163 +1,467 @@
 #include "main.h"
-<<<<<<< HEAD
-#include "pros/device.hpp"
-#include "pros/misc.h"
-#include "robodash/api.h" // IWYU pragma: keep
-#include "liblvgl/lvgl.h" // IWYU pragma: keep
-#include "pros/misc.hpp"
-#include "pros/motors.h"
-=======
+#include "autons.hpp"
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include "robodash/api.h" // IWYU pragma: keep
+#include "lemlib/chassis/chassis.hpp"
+#include "pros/misc.hpp"
+#include "pros/motor_group.hpp"
+#include "pros/motors.h"
+#include "pros/motors.hpp"
+#include "pros/optical.hpp"
+#include "pros/rtos.hpp"
+#include "robodash/views/image.hpp"
+#include "robodash/views/selector.hpp"
+#include <cmath>
+#include <ctime>
+#include <exception>
+#include <ios>
+#include <string>
+#include <fstream>
 
-/**
- * Runs initialization code. This occurs as soon as the program is started.
- *
- * All other competition modes are blocked by initialize; it is recommended
- * to keep execution time for this mode under a few seconds.
- */
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 
-bool imudc = false;
+// Declare RoboDash stuff
+// ALSO why is selecting it crashing the brain bruh
 
-void initialize() {
-    chassis.calibrate();     // calibrate sensors
-  	chassis.setPose(0.0, 0.0, 0.0);
+void noth() {}
 
-//   try {selector.focus();} 
-//   catch (std::exception e) {}
+rd::Selector selector({
+    {"Blue Ring Side", slowRightBlue, "", 240},
+    {"Blue Ring Rush", ringRushBlue, "", 240},
+    {"Blue Mogo Rush", mogoRushBlue, "", 240},
+    {"Solo AWP Blue", soloAWPBlue, "", 240},
+    {"Run Autonomous", noth, "", 120},
+});
+rd::Image teamLogo("/usd/logo.bin", "Team logo");
+rd::Console console;
 
-	pros::Task intakeTask([]() {
-		intakeMotor.move(intake * 1.27);
-		pros::delay(20);
-	});
 
-	pros::Task screenTask([&]() {
-		controller.clear();
+// Set a bunch of values for controller switches
+bool fwSwitch = 0;     
+bool mogoValue = false; 
+bool doinkerValue = false;
+bool intakeValue = false;
+int debugStatCount = 0;
+bool goDetectRing = false;
+bool yesdr = false;
+bool usebrake = false;
+bool manualarm = false;
+int flexwheelstuckamt = 0;
+bool hangbool = false;
 
-		while (true) {
-			// Detect motor burn out
-			if (intakeMotor.get_temperature() >= 45) {
-				controller.print(0, 0, "Intake: %.0fC ", intakeMotor.get_temperature());
-			} else {
-				// DEBUG
-				controller.print(0, 0, "%.1f %.1f %.0f  ", chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
-			}
+void ejectring() {
+  if (!onmatch) {
+    ejectcounter++;
+    ejecting = true;
+    // pros::lcd::print(9, "INTAKE STOP");
 
-			if (!imu.is_installed()) 
-				imudc = true;
-		
-			if (imudc) 
-				controller.print(2, 0, "IMU Disconnected");
+    // Keep detecting until the hole is passed
+    int bruh = 0;
+    while (ringsort.get_proximity() >= 210 && bruh < 300) {
+      bruh++;
+      pros::delay(1); // Add a short delay. 2 is the minimum polling rate of the
+    }
+   
+    // Wait until a certain amount of pos before ejecting and set a timeout of a certain amount of MS in case of the chain failing
+    double currentChain = chain.get_position();
+    int i = 0;
+    //          amt of rotations until eject    v           v   timeout in MS
+    while (chain.get_position()-currentChain < 63 && i < 100) {
+      i++;
+      pros::delay(1);
+    }
 
-			// delay to save resources
-			pros::delay(500);
-		}
-	});
+    chain.move(-15);
+
+    pros::delay(200);
+    // pros::lcd::print(6, "nope");
+
+    ejecting = false;
+  }
 }
 
-/**
- * Runs while the robot is in the disabled state of Field Management System or
- * the VEX Competition Switch, following either autonomous or opcontrol. When
- * the robot is enabled, this task will exit.
- */
-void disabled() {}
 
-/**
- * Runs after initialize(), and before autonomous when connected to the Field
- * Management System or the VEX Competition Switch. This is intended for
- * competition-specific initialization routines, such as an autonomous selector
- * on the LCD.
- *
- * This task will exit when the robot is enabled and autonomous or opcontrol
- * starts.
- */
-void competition_initialize() {}
 
-/**
- * Runs the user autonomous code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the autonomous
- * mode. Alternatively, this function may be called in initialize or opcontrol
- * for non-competition testing purposes.
- *
- * If the robot is disabled or communications is lost, the autonomous task
- * will be stopped. Re-enabling the robot will restart the task, not re-start it
- * from where it left off.
- */
-void autonomous() {}
+void testpid() {
+  pros::MotorGroup dt = pros::MotorGroup({-20, -19, -18, 11, 12, 13});
+  std::ofstream outfile;
 
-<<<<<<< HEAD
-bool gutterOn = false;
-bool doorOn = false;
+  outfile.open("/usd/test1.txt", std::ios_base::app); // append instead of overwrite
+  for (int i = 0; i < 12000; i += 1000) {
+    dt.move_voltage(i);
+    pros::delay(1000);
+    controller.print(1, 0, "A: %.6f     ", dt.get_actual_velocity() / 1000);
+    controller.print(1, 0, "T: %.6f     ", dt.get_target_velocity() / 1000);
+    outfile << std::format("(%.6f,%.6f),", dt.get_target_velocity() / 1000, dt.get_actual_velocity() / 1000);
+    dt.move_voltage(0);
+    pros::delay(500);
 
-bool onHoldMode = false;
+    if (i == 5) {
+      pros::delay(10000);
+    }
+  }
+  outfile.close();
+}
 
-=======
-/**
- * Runs the operator control code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the operator
- * control mode.
- *
- * If no competition control is connected, this function will run immediately
- * following initialize().
- *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
- */
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
-void opcontrol() {	
-	while (true) {
-		// DRIVE FUNCTION
-		int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-		int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);  
-		int l2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
-		int r2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2);
-<<<<<<< HEAD
+void testPID2() {
+  pros::MotorGroup dt = pros::MotorGroup({-20, -19, -18, 11, 12, 13});
+  std::ofstream outfile;
 
-		// Drive function (Lemlib)
-		if (abs(leftY) > 5) // Controller deadband area
-=======
+  outfile.open("/usd/test2.txt", std::ios_base::app); // append instead of overwrite
+  double i = 0;
+  dt.move_voltage(10000);
+  for (int k = 0; k < 100; k++) {
+    outfile << std::format("(%.3f,%.6f),", i, dt.get_actual_velocity() / 1000);
+    i += 0.01;
+    pros::delay(10);
+  }
+  outfile.close();
+}
+
+
+void flexWheelIntakeFunc() {
+  int fwamt = 0;
+  int yesfw = 0;
+  int amtofdetect = 0;
+  while (true) {
+    // Spin the intake if on
+    int intakespd = intake * 1.27;
+
+    int prox = ringsort.get_proximity();
+    int hue = ringsort.get_hue();
+    if (!ejecting) {
+
+      if (!onmatch &&prox >= 210 && ejectcounter < 3 &&
+          ((team == 0 && hue >= 200 && hue <= 250) ||
+           (team == 1 && hue >= 3 && hue <= 20))) {
+        // console.println("Detect ring");
+        amtofdetect++;
+        pros::lcd::print(6, "Detected ring x%d", amtofdetect);
+
+        pros::Task ertask(ejectring);
+        // ejectring();
+      } else {
+        if (ejectcounter > 0) {
+          ejectcounter--;
+        }
+
+        chain.move(intakespd);
+
+
+
+        if (intakespd > 100 &&
+            (armMotorCounter == 0 && armMotorCounterDouble == 0 &&
+             alliancecounter == 0)) {
+          fwamt++;
+          if (fwamt > 250 && chain.get_actual_velocity() < 15 && yesfw < 200) {
+            //    pros::lcd::print(5, "Actual velocity:
+            //    %i",chain.get_actual_velocity());
+            // Move it back then fwd again
+            chain.move(-127);
+            pros::delay(150);
+            fwamt = 0;
+            yesfw += 30;
+          } else {
+            // Ring sort function
+            if (!onmatch) {
+              int hue = ringsort.get_hue();
+            }
+          }
+
+        } else {
+          fwamt = 0;
+          if (yesfw > 0) {
+            yesfw--;
+          }
+        }
+      }
+    }
+    // Save resources
+    pros::delay(5);
+  }
+}
+
+void initialize() {
+
+
+  pros::Task putdownlb([&]() {
+    armMotor.move(-127);
+    pros::delay(500);
+
+    armMotor.tare_position();
+    armMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    armMotor.brake();
+  });
   
-		// Drive function (Lemlib)
-		if (abs(leftY) > 5) 
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
-			chassis.arcade(leftY, rightX, false, 0.4);
+  // pros::lcd::initialize(); // initialize brain screen
+  chassis.calibrate();     // calibrate sensors
+  chassis.setPose(0.0, 0.0, 0.0);
   
-		// Activate intake
-		intake = r2 * 100 + l2 * -100;
+  // LBtracking.reset();
+  LBtracking.set_data_rate(5);
+  // LBtracking.reset_position();
+  // pros::delay(100);
 
-<<<<<<< HEAD
-		// BUTTONS
+  // armMotor.move(0);
 
-		// A: Gutter activation
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-			gutterOn = !gutterOn;
-			gutter.set_value(gutterOn);
-		}
-		// B: Door activation
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
-			doorOn = !doorOn;
-			doorMid.set_value(doorOn);
-		}
+  ringsort.disable_gesture();
+  ringsort.set_integration_time(3);
+  ringsort.set_led_pwm(50);
 
-		// Y: Switch between hold mode
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
-			onHoldMode = !onHoldMode;
+  try {
+    selector.focus();
+  } catch (std::exception e) {}
 
-		// If controller is disconnected then set the robot to hold mode
-		// It won us provs LOL
-		if (!controller.is_connected() || onHoldMode) {
-			chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
-		} else {
-			chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
-		}
 
-=======
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
-		// Delay to save resources. 10 MS for low latency
-		pros::delay(10);
-	}
+
+  pros::Task screenTask([&]() {
+    controller.clear();
+    pros::Task intakeTask(flexWheelIntakeFunc);
+
+    while (true) {
+
+
+      // controller.print(0,0 ,"%.1f",     chain.get_position()    );
+
+      // Detect motor burn our
+      if (chain.get_temperature() > 55) {
+        controller.print(0, 0, "Intake: %.0fC ", chain.get_temperature());
+      } else if (chain.get_temperature() > 55) {
+        controller.print(0, 0, "LB: %.0fC   ", armMotor.get_temperature());
+      } else {
+        // DEBUG
+        controller.print(0, 0, "%.1f %.1f %.0f  ", chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
+      }
+
+      if (!imu.is_installed()) {
+        imudc = true;
+      }
+      if (imudc) {
+        controller.print(2, 0, "IMU Disconnected");
+      }
+
+  
+      // delay to save resources
+      pros::delay(500);
+    }
+  });
+  // std::cout << "Initialized";
+  // // Yes.
+  // rd::Selector::routine_t lastr;
+  // selector.on_select([&lastr](std::optional<rd::Selector::routine_t> routine) {
+	// 	if (routine.value().name == "Run Autonomous") {
+	// 		std::cout << "Running autonomous" << std::endl;
+  //     lastr.action();
+	// 	} else {
+  //     lastr = *routine;
+  //   }
+	// });
+}
+
+void disabled() {
+
+  
+}
+
+void competition_initialize() {
+
+  pros::Task putdownlb([&]() {
+    armMotor.move(-127);
+    pros::delay(500);
+
+    armMotor.tare_position();
+    armMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    armMotor.brake();
+  });
+  
+}
+
+void autonomous() {
+    onmatch = false;
+    // Set team for ring sort
+    // chassis.turnToHeading(90, 10000);
+
+    // chassis.turnToHeading(180, 10000);
+
+    try {
+      if (selector.get_auton().value().name == "Red Ring Side" ||
+        selector.get_auton().value().name == "Red Mogo Rush" ||
+        selector.get_auton().value().name == "Solo AWP Red") {
+          team = 0;
+      } else {
+          team = 1;
+      }
+    } catch (int e) {}
+
+    // Run auton
+    // ringRushBlue();
+    selector.run_auton();
+
+}
+
+void hang() {
+  hangbool = !hangbool;
+  if (hangbool) {
+    LBmoveToAngle(200);
+  } else {
+    LBmoveToAngle(0);
+  }
+}
+
+/* Setup the ROBODASH setups and team */
+void rdsetup() {
+  if (
+    selector.get_auton().value().name == "Red Ring Side" ||
+    selector.get_auton().value().name == "Red Mogo Rush" ||
+    selector.get_auton().value().name == "Solo AWP Red"
+  ) {
+    team = 0;
+    console.println("Team is Red");
+  } else {
+    team = 1;
+    console.println("Team is Blue");
+  }
+}
+
+// Driver code
+bool lb180 = false;
+
+void opcontrol() {
+    // onmatch = true; // Disables the ring sort
+
+    // controller.rumble("-  -  -  .-");
+  // testpid();
+  // pros::delay(2000);
+
+  // autonomous();
+  // pros::delay(10000);
+  pros::Task driveTask([&]() {
+    while (true) {
+      int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+      int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);  
+      int l2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
+      int r2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2);
+
+      // Drive function (Lemlib)
+      chassis.arcade(leftY, rightX, false, 0.4);
+
+      // Activate intake
+      intake = r2 * 100 + l2 * -100;
+
+      pros::delay(10);
+    }
+
+  });
+
+  try {
+    teamLogo.focus();
+  } catch (std::exception e) {}
+
+  while (true) {
+    // Get Values of the controller
+   
+    int rightY = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+
+    int r1 = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1);
+    int l1 = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1);
+
+    int a = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A);
+    int b = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B);
+    int x = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X);
+    int y = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y);
+
+    int downArrow = controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN);
+    int upArrow = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP);
+    int rightArrow = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT);
+    int leftArrow = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT);
+
+    // Should manual arm be on, arm motors can be moved using the joystick
+    if (manualarm && !nomovearm) {
+      armMotor.move(-rightY);
+    }
+
+    if (leftArrow) {
+      onmatch = !onmatch;
+      if (onmatch) {
+        ringsort.set_led_pwm(0);
+      } else {
+        ringsort.set_led_pwm(50);
+      }
+      controller.print(2, 0, "RING SORT %s          ", onmatch ? "OFF" : "ON");
+    }
+
+    // Mogo mech code
+    if (r1) {
+      mogoValue = !mogoValue;
+      mogo.set_value(mogoValue);
+      controller.print(2, 0, "Mogo Piston %s          ", mogoValue ? "ON" : "OFF");
+    }
+
+    // Ladybrown code
+    if (l1 && !movingArmMotor) {
+      pros::Task armmotortask(armStagesOneRing);
+    }
+
+    // Buttons
+    if (a) {
+      doinkerValue = !doinkerValue;
+      doinker.set_value(doinkerValue);
+      controller.print(2, 0, "Doinker %s          ", doinkerValue ? "ON" : "OFF");
+    }
+
+    // Change to brake mode
+    if (upArrow) {
+      usebrake = !usebrake;
+      // // controller.clear_line(2);
+      controller.print(2, 0, "Brake Mode: %s          ",
+                       usebrake ? "Hold" : "None");
+    }
+
+    // 
+    if (x) {
+      manualarm = !manualarm;
+      // armMotor.tare_position();
+      // LBtracking.reset();
+      // LBtracking.reset_position();
+      controller.print(2, 0, "Manual Arm %s          ",
+                       doinkerValue ? "ON" : "OFF");
+    }
+
+    // Turn on hang
+    if (y) {
+      hang();
+    }
+
+    if (rightArrow) {
+      allianceStakeCode();
+    }
+
+    if (downArrow) {
+      lb180 = !lb180;
+      if (lb180) {
+          LBmoveToAngle(200);
+
+      } else {
+          LBmoveToAngle(0);
+      }
+    }
+
+    // If disconnected, set the bot to be hold mode just in case
+    if (controller.is_connected()) {
+      if (usebrake) {
+        chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
+      } else {
+        chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
+      }
+
+    } else {
+        // this code won us provs VVV
+        chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
+    }
+
+ 
+
+    // Delay to save resources. This also makes sure that code runs properly
+    // (e.g. 10 ticks = 100 milliseconds)
+    pros::delay(10);
+
+  }
 }

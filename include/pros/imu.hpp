@@ -7,11 +7,7 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
-<<<<<<< HEAD
  * \copyright (c) 2017-2023, Purdue University ACM SIGBots.
-=======
- * \copyright (c) 2017-2024, Purdue University ACM SIGBots.
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -59,11 +55,7 @@ inline namespace v5 {
 class Imu : public Device {
 	/**
 	 * \addtogroup cpp-imu
-<<<<<<< HEAD
 	 * ///@{
-=======
-	 * @{
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 	 */
 
 	public:
@@ -144,11 +136,7 @@ class Imu : public Device {
 	 *
 	 * void opcontrol() {
 	 *   pros::Imu imu(IMU_PORT);
-<<<<<<< HEAD
 	 *   imu.calibrate();
-=======
-	 *
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 	 *   // Block until calibration is complete
 	 *   imu.reset(true);
 	 * }
@@ -1023,11 +1011,7 @@ class Imu : public Device {
 	 *
 	 *   while (true) {
 	 *     // Calibrate the sensor
-<<<<<<< HEAD
 	 *     imu.calibrate();
-=======
-	 *     imu.reset();
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 	 *     delay(20);
 	 *
 	 *     // Check if the sensor is calibrating

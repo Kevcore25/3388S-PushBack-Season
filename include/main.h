@@ -1,40 +1,40 @@
 /**
-* \file main.h
-*
-* Contains common definitions and header files used throughout your PROS
-* project.
-*
-* \copyright Copyright (c) 2017-2023, Purdue University ACM SIGBots.
-* All rights reserved.
-*
-* This Source Code Form is subject to the terms of the Mozilla Public
-* License, v. 2.0. If a copy of the MPL was not distributed with this
-* file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+ * \file main.h
+ *
+ * Contains common definitions and header files used throughout your PROS
+ * project.
+ *
+ * \copyright Copyright (c) 2017-2023, Purdue University ACM SIGBots.
+ * All rights reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 
 #ifndef _PROS_MAIN_H_
 #define _PROS_MAIN_H_
 
 /**
-* If defined, some commonly used enums will have preprocessor macros which give
-* a shorter, more convenient naming pattern. If this isn't desired, simply
-* comment the following line out.
-*
-* For instance, E_CONTROLLER_MASTER has a shorter name: CONTROLLER_MASTER.
-* E_CONTROLLER_MASTER is pedantically correct within the PROS styleguide, but
-* not convenient for most student programmers.
-*/
+ * If defined, some commonly used enums will have preprocessor macros which give
+ * a shorter, more convenient naming pattern. If this isn't desired, simply
+ * comment the following line out.
+ *
+ * For instance, E_CONTROLLER_MASTER has a shorter name: CONTROLLER_MASTER.
+ * E_CONTROLLER_MASTER is pedantically correct within the PROS styleguide, but
+ * not convenient for most student programmers.
+ */
 #include "lemlib/chassis/trackingWheel.hpp"
 #include "pros/abstract_motor.hpp"
 #include "pros/motors.h"
 #define PROS_USE_SIMPLE_NAMES
 
 /**
-* If defined, C++ literals will be available for use. All literals are in the
-* pros::literals namespace.
-*
-* For instance, you can do `4_mtr = 50` to set motor 4's target velocity to 50
-*/
+ * If defined, C++ literals will be available for use. All literals are in the
+ * pros::literals namespace.
+ *
+ * For instance, you can do `4_mtr = 50` to set motor 4's target velocity to 50
+ */
 #define PROS_USE_LITERALS
 
 #include "api.h"
@@ -42,27 +42,27 @@
 #include "lemlib/api.hpp"
 
 /**
-* You should add more #includes here
-*/
+ * You should add more #includes here
+ */
 //#include "okapi/api.hpp"
 
 /**
-* If you find doing pros::Motor() to be tedious and you'd prefer just to do
-* Motor, you can use the namespace with the following commented out line.
-*
-* IMPORTANT: Only the okapi or pros namespace may be used, not both
-* concurrently! The okapi namespace will export all symbols inside the pros
-* namespace.
-*/
+ * If you find doing pros::Motor() to be tedious and you'd prefer just to do
+ * Motor, you can use the namespace with the following commented out line.
+ *
+ * IMPORTANT: Only the okapi or pros namespace may be used, not both
+ * concurrently! The okapi namespace will export all symbols inside the pros
+ * namespace.
+ */
 // using namespace pros;
 // using namespace pros::literals;
 // using namespace okapi;
 
 /**
-* Prototypes for the competition control tasks are redefined here to ensure
-* that they can be called from user code (i.e. calling autonomous from a
-* button press in opcontrol() for testing purposes).
-*/
+ * Prototypes for the competition control tasks are redefined here to ensure
+ * that they can be called from user code (i.e. calling autonomous from a
+ * button press in opcontrol() for testing purposes).
+ */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -71,157 +71,319 @@ void initialize(void);
 void disabled(void);
 void competition_initialize(void);
 void opcontrol(void);
-
 inline int intake = 0;
 inline int rollerIntake = 0;
 
-<<<<<<< HEAD
-inline pros::MotorGroup left_motors({-1, -2, -3}, pros::MotorGearset::blue);
-inline pros::MotorGroup right_motors({8, 9, 10}, pros::MotorGearset::blue);
 
-inline pros::Motor intakeMotor(16, pros::MotorGearset::blue);
-=======
+
 inline pros::MotorGroup left_motors({-20, -19, -18}, pros::MotorGearset::blue);
 inline pros::MotorGroup right_motors({11, 12, 13}, pros::MotorGearset::blue);
 
-inline pros::Motor intakeMotor(16);
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
+// inline pros::Motor chain(-12, pros::MotorGearset::blue, pros::MotorEncoderUnits::degrees);
+// inline pros::Motor flexWheels(5, pros::MotorGearset::green);
+
+inline pros::Motor chain(16);
+// inline pros::Motor rollers(-4);
+
 
 inline pros::Imu imu(17);
 
-inline pros::adi::DigitalOut gutter('A');
-inline pros::adi::DigitalOut doorMid('B');
 
-inline pros::Rotation verticalTrackingWheel(-15);
+inline pros::Motor armMotor(-21, pros::MotorGearset::rpm_600, pros::MotorEncoderUnits::degrees);
+
+
+inline pros::adi::DigitalOut mogo('G');
+inline pros::adi::DigitalOut doinker('H');
+inline pros::adi::DigitalOut hangADI('B');
+
+
+
+
+inline pros::Rotation horizontalTrackingWheel(-15);
+inline pros::Rotation LBtracking(-1);
+
+
+
+inline pros::Optical ringsort(10);
+
+
+
 
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
+
+
+
+
+
+
+
+
+
+
+ // Controller LCD screen:
+
+
+
+
+/*
+inline Line 1: Bat: X% |
+inline Line 2: Errors: (e.g. dc IMU)
+inline Line 3: Log
+*/
+
+
+
+
 inline lemlib::Drivetrain drivetrain(
-    &left_motors,
-    &right_motors,
-    11.25,
-    lemlib::Omniwheel::NEW_325,
-    360,
-    2
+   &left_motors,
+   &right_motors,
+   11.25,
+   lemlib::Omniwheel::NEW_275,
+   425,
+   2
 );
 
 
 inline lemlib::ControllerSettings lateral_controller(
-    8.2, // proportional gain (kP)
-    0, // integral gain (kI)
-    4.6, // derivative gain (kD)
-    0, // anti windup
-    0.25, // small error range, in inches
-    50, // small error range timeout, in milliseconds
-    0.5, // large error range, in inches
-    200, // large error range timeout, in milliseconds
-    0 // maximum acceleration (slew)
+  8.2, // proportional gain (kP)
+  0, // integral gain (kI)
+  4.6, // derivative gain (kD)
+  0, // anti windup
+  0.25, // small error range, in inches
+  50, // small error range timeout, in milliseconds
+  0.5, // large error range, in inches
+  200, // large error range timeout, in milliseconds
+  0 // maximum acceleration (slew)
 );
 
 inline lemlib::ControllerSettings angular_controller(
-    2, // proportional gain (kP)
-    0, // integral gain (kI)
-    10, // derivative gain (kD)
-    0, // anti windup
-    1, // small error range, in inches
-    100, // small error range timeout, in milliseconds
-    3, // large error range, in inches
-    500, // large error range timeout, in milliseconds
-    0 // maximum celeration (slew)
+  2, // proportional gain (kP)
+  0, // integral gain (kI)
+  10, // derivative gain (kD)
+  0, // anti windup
+  1, // small error range, in inches
+  100, // small error range timeout, in milliseconds
+  3, // large error range, in inches
+  500, // large error range timeout, in milliseconds
+  0 // maximum celeration (slew)
 );
 
-inline lemlib::TrackingWheel verticalTracking(&verticalTrackingWheel, lemlib::Omniwheel::NEW_2, -1.0);
+ // lemlib::TrackingWheel vertical_tracking_wheel(&vs, lemlib::Omniwheel::NEW_275, -6);
 
-inline lemlib::OdomSensors sensors(
-    &verticalTracking, // vertical tracking wheel 1, set to null
-    nullptr, // vertical tracking wheel 2, set to nullptr as we are using IMEs
-    nullptr, // horizontal tracking wheel 1
-    nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
-    &imu//&imu // inertial sensor
-);
+
+inline lemlib::TrackingWheel horizontalTracking(&horizontalTrackingWheel, lemlib::Omniwheel::NEW_2, -1.0);
+//  inline lemlib::TrackingWheel verticalTracking(&verticalTrackingWheel, lemlib::Omniwheel::NEW_2, 0.8);
+
+ // to not break, disable vertical tracking, set rpm to 400, horizontal tracking wheel to -1.6
+ 
+ inline lemlib::OdomSensors sensors(
+  nullptr, // vertical tracking wheel 1, set to null
+  nullptr, // vertical tracking wheel 2, set to nullptr as we are using IMEs
+  &horizontalTracking, // horizontal tracking wheel 1
+  nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
+  &imu//&imu // inertial sensor
+ );
+ 
+
+
+
+
+
 
 
 // input curve for throttle input during driver control
-inline lemlib::ExpoDriveCurve throttle_curve(
-    5, // joystick deadband out of 127
-    10, // minimum output where drivetrain will move out of 127
-    1.021 // expo curve gain
+inline lemlib::ExpoDriveCurve throttle_curve(5, // joystick deadband out of 127
+                                    10, // minimum output where drivetrain will move out of 127
+                                    1.021 // expo curve gain
 );
+
+
+
+
+
+
+
 
 // input curve for steer input during driver control
-inline lemlib::ExpoDriveCurve steer_curve(
-    3, // joystick deadband out of 127
-    0, // minimum output where drivetrain will move out of 127
-    1.021 // expo curve gain
+inline lemlib::ExpoDriveCurve steer_curve(3, // joystick deadband out of 127
+                                 0, // minimum output where drivetrain will move out of 127
+                                 1.021 // expo curve gain
 );
 
-inline lemlib::Chassis chassis(
-    drivetrain, // drivetrain settings
-    lateral_controller, // lateral PID settings
-    angular_controller, // angular PID settings
-    sensors,
-    &throttle_curve,
-    &steer_curve
+
+
+
+
+
+
+
+// create the  uwu Jacob Kim is gay
+inline lemlib::Chassis chassis(drivetrain, // drivetrain settings
+                       lateral_controller, // lateral PID settings
+                       angular_controller, // angular PID settings
+                       sensors,
+                       &throttle_curve,
+                       &steer_curve
 );
+
+
+// Controller LCD screen:
+
+
+
+
+/*
+Line 1: Bat: X% |
+Line 2: Errors: (e.g. dc IMU)
+Line 3: Log
+*/
+
+
+
 
 extern lemlib::Drivetrain drivetrain;
 
+
 extern lemlib::ControllerSettings lateral_controller;
+
+
+// angular PID controller
 extern lemlib::ControllerSettings angular_controller;
+
+// lemlib::TrackingWheel vertical_tracking_wheel(&vs, lemlib::Omniwheel::NEW_275, -6);
+
 
 extern lemlib::TrackingWheel horizontalTracking;
 
 extern lemlib::OdomSensors sensors;
 
+
+
+
+
+
+
+// input curve for throttle input during driver control
 extern lemlib::ExpoDriveCurve throttle_curve;
+
+
+
+
+
+
+
+
+// input curve for steer input during driver control
 extern lemlib::ExpoDriveCurve steer_curve;
 
+
+
+
+
+
+
+
+// create the  uwu Jacob Kim is gay
 extern lemlib::Chassis chassis;
 
+
+
+
+
+
+inline bool movingArmMotor = false;
+
+
 inline int sign(int num) {
-    if (num == 0)
-        return 0;
-    return (num >= 0) ? 1 : -1;
+  if (num == 0)
+    return 0;
+  return (num >= 0) ? 1 : -1;
 }
 
 inline float lateralInputRemap(float input, float scale) {
-    if (scale != 0) {
-        auto eq1 = [](float x, float a) {
-        return powf(a, std::abs(x) - 127) * (std::abs(x)) * sign(x);
-        };
+  if (scale != 0) {
+    auto eq1 = [](float x, float a) {
+      return powf(a, std::abs(x) - 127) * (std::abs(x)) * sign(x);
+    };
 
-        return (eq1(input, scale) * 127.0 / (eq1(127, scale)));
-    }
-    return input;
+    return (eq1(input, scale) * 127.0 / (eq1(127, scale)));
+  }
+  return input;
 }
 
 inline float angularInputRemap(float input, float scale) {
-    if (scale != 0) {
-        return (powf(2.718, -(scale / 10)) + powf(2.718, (fabs(input) - 127) / 10) *
-                                                (1 - powf(2.718, -(scale / 10)))) *
-            input;
-    }
-    return input;
+  if (scale != 0) {
+    return (powf(2.718, -(scale / 10)) + powf(2.718, (fabs(input) - 127) / 10) *
+                                             (1 - powf(2.718, -(scale / 10)))) *
+           input;
+  }
+  return input;
 }
 
 inline void arcade(int throttle, int angular) {
-    int deadzone = 5;
+  int deadzone = 5;
 
-    throttle = (abs(throttle) <= deadzone) ? 0 : throttle;
-    angular = (abs(angular) <= deadzone) ? 0 : angular;
+  throttle = (abs(throttle) <= deadzone) ? 0 : throttle;
+  angular = (abs(angular) <= deadzone) ? 0 : angular;
 
-    throttle = lateralInputRemap(throttle, 1.021);
+  throttle = lateralInputRemap(throttle, 1.021);
 
-    angular = angularInputRemap(angular, 7.5) * 0.6;
+  angular = angularInputRemap(angular, 7.5) * 0.6;
 
-    if (throttle + angular < 100) {
-        angular /= 0.6;
-    }
+  if (throttle + angular < 100) {
+    angular /= 0.6;
+  }
 
-    left_motors.move(throttle + angular);
-right_motors.move(throttle - angular);
+  left_motors.move(throttle + angular);
+  right_motors.move(throttle - angular);
 }
 
+
+/**
+ * Moves the arm motor to an angle
+ * Speed is a percentage value. 100 is 127 in voltage
+ * Precision is a delay to save resources. Lower is more accurate and higher is
+ * more efficient
+ */
+inline bool LBmoveToAngle(double angle, int speed = 100, int precision = 5, int timeout = 2000) {
+    movingArmMotor = true;
+   // If the rotational sensor is connected, then use the rotational sensor to move the ladybrown
+   // This is done by constantly checking the angle of the rotatoional sensor until it meets the angle specified
+   // However, if the rotational sensor is not connected, for example, it disconnects, it should use the internal motor encoding units instead
+
+
+   int actualtimeout = timeout / precision;
+
+
+   if (LBtracking.is_installed()) {
+       // If move more
+       if (angle * 100 > LBtracking.get_position()) {
+           armMotor.move(speed * 1.27);
+           while (LBtracking.get_position() < angle * 100 && actualtimeout >= 0) {
+               pros::delay(precision);
+               actualtimeout -= 1;
+           }
+       } else {
+           armMotor.move(-(speed * 1.27));
+           while (LBtracking.get_position() > angle * 100 && actualtimeout >= 0) {
+               pros::delay(precision);
+               actualtimeout -= 1;
+           }
+       }
+       armMotor.move(0);
+       armMotor.brake();
+   } else {
+       // This function should only run if the rotational sensor is not installed
+    //    pros::lcd::print(6, "LB tracking gone, using IME");
+       armMotor.move_absolute(angle * 5, speed * 10);
+       pros::delay(30000 / speed);
+   }
+
+   movingArmMotor = false;
+  
+   return true;
+}
 
 inline void move_forward(float inches, int timeout, bool async = false, lemlib::MoveToPointParams params = {}) {
     bool forwards = true;
@@ -318,6 +480,106 @@ inline void quick_move_forward(float inches, int maxTimeout = 5000, float errorR
     }
 
 }
+inline bool imudc = false;
+inline bool nomoveflex = false;
+inline bool nomovearm = false;
+inline bool onmatch = false;
+inline bool ejecting = false;
+inline int ejectcounter = 0;
+inline int conveyTurnAmt = 0;
+
+inline int armMotorCounter = 0;
+inline int armMotorCounterDouble = 0;
+inline int alliancecounter = 0;
+inline bool moreLB = false;
+
+// Arm motor
+inline void armStagesOneRing() {
+  if (armMotorCounter == 0) {
+    armMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    armMotor.brake();
+    LBmoveToAngle(26.25, 30, 1);
+
+  } else if (armMotorCounter == 1) {
+    // Complicated steps to push it down for the next step
+    intake = -20;
+    LBmoveToAngle(155 + moreLB * 60, 100, 5, 1200);
+    intake = 0;
+    moreLB = false;
+
+  } else if (armMotorCounter == 2) {
+    LBmoveToAngle(0, 90, 2, 1200);
+    armMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    armMotor.brake();
+
+    // resetLBPos();
+    armMotorCounter = -1;
+  }
+
+  armMotorCounter++;
+  nomovearm = false;
+}
+
+inline void armStagesTwoRing() {
+  if (armMotorCounterDouble == 0) {
+    armMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    LBmoveToAngle(26, 30, 2);
+  } else if (armMotorCounterDouble == 1) {
+    // intake = 100;
+    // pros::delay(20);
+    // intake = 0;
+    // pros::delay(10);
+    intake = -30;
+    pros::delay(20);
+    intake = 0;
+    LBmoveToAngle(70, 40, 2);
+  } else if (armMotorCounterDouble == 2) {
+    // Complicated steps to push it down for the next step
+    LBmoveToAngle(160, 100, 5);
+  } else if (armMotorCounterDouble == 3) {
+    LBmoveToAngle(40, 50, 2);
+  } else if (armMotorCounterDouble == 4) {
+    LBmoveToAngle(160, 100, 5);
+  } else if (armMotorCounterDouble == 5) {
+    LBmoveToAngle(0, 100, 2, 200);
+    armMotorCounterDouble = -1;
+    armMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+    armMotor.brake();
+    // resetLBPos();
+  }
+
+  armMotorCounterDouble++;
+  nomovearm = false;
+}
+
+inline void allianceStakeCode() {
+  // Wall stake mech code
+  // Should be ran inside a thread because it uses delay commands which can
+  // interrupt the main while true loop
+  move_forward(-5.8, 500, true, {.minSpeed = 30});
+  moreLB = true;
+}
+
+/* Function to "double tap" the intake to make the ring in the ladybrown
+ * actually get "in there" so it can stay there and won't fall off*/
+inline void intakeLB(int amt = 2) {
+  for (int i = 0; i < amt; i++) {
+    intake = 100;
+    pros::delay(150);
+    intake = 0;
+    pros::delay(150);
+  }
+}
+
+inline void lbLater() {
+  pros::delay(750);
+  armStagesOneRing();
+}
+
+inline void intakeLBT() { intakeLB(); }
+
+
+// homemade PID???
 
 #ifdef __cplusplus
 }
@@ -325,7 +587,7 @@ inline void quick_move_forward(float inches, int maxTimeout = 5000, float errorR
 
 #ifdef __cplusplus
 /**
-* You can add C++-only headers here
-*/
+ * You can add C++-only headers here
+ */
 #endif
 #endif

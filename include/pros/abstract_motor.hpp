@@ -9,11 +9,7 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
-<<<<<<< HEAD
  * \copyright Copyright (c) 2017-2023, Purdue University ACM SIGBots.
-=======
- * \copyright Copyright (c) 2017-2024, Purdue University ACM SIGBots.
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
  * All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -73,19 +69,6 @@ enum class MotorGears {
 	invalid = INT32_MAX ///< Error return code
 };
 
-<<<<<<< HEAD
-=======
-/**
- * \enum MotorType
- * Indicates the type of a motor
- */
-enum class MotorType {
-	v5 = 0, ///< 11w motor
-	exp = 1, ///< 5.5w motor
-	invalid = INT32_MAX ///< Error return code
-};
-
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 
 // Provide Aliases for MotorGears
 using MotorGearset = MotorGears;
@@ -975,37 +958,6 @@ class AbstractMotor {
 	virtual std::vector<std::int32_t> is_reversed_all(void) const = 0;
 
 	/**
-<<<<<<< HEAD
-=======
-	 * Gets the type of the motor
-	 * 
-	 * This function uses the following values of errno when an error state is
-	 * reached:
-	 * ENODEV - The port cannot be configured as a motor
-	 *
-     * \param index Optional parameter. 
-     *           The index of the motor to get the target position of.
-     *           By default index is 0, and will return an error for an out of bounds index
-	 *
-	 * \return One of MotorType according to the type of the motor,
-	 * or pros::MotorType::invalid if the operation failed
-	 */
-	virtual MotorType get_type(const std::uint8_t index = 0) const = 0;
-
-	/**
-	 * Gets a vector of the type(s) of the motor(s).
-	 *
-	 * This function uses the following values of errno when an error state is
-	 * reached:
-	 * ENODEV - The port cannot be configured as a motor
-	 * 
-	 * \return A vector of MotorType according to the type(s) of the motor(s),
-	 * or pros::MotorType::invalid if the operation failed.
-	 */
-	virtual std::vector<MotorType> get_type_all(void) const = 0;
-
-	/**
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 	 * Sets one of MotorBrake to the motor. Works with the C enum
 	 * and the C++ enum class.
 	 *

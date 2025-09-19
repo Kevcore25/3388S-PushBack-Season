@@ -8,11 +8,7 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
-<<<<<<< HEAD
  * \copyright Copyright (c) 2017-2023, Purdue University ACM SIGBots.
-=======
- * \copyright Copyright (c) 2017-2024, Purdue University ACM SIGBots.
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
  * All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -43,7 +39,6 @@
 #include <unistd.h>
 #endif /* __cplusplus */
 
-<<<<<<< HEAD
 #define PROS_VERSION_MAJOR 4
 #define PROS_VERSION_MINOR 1
 #define PROS_VERSION_PATCH 1
@@ -51,10 +46,6 @@
 
 
 #include "pros/adi.h"
-=======
-#include "pros/adi.h"
-#include "pros/ai_vision.h"
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #include "pros/colors.h"
 #include "pros/device.h"
 #include "pros/distance.h"
@@ -74,10 +65,6 @@
 
 #ifdef __cplusplus
 #include "pros/adi.hpp"
-<<<<<<< HEAD
-=======
-#include "pros/ai_vision.hpp"
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #include "pros/colors.hpp"
 #include "pros/device.hpp"
 #include "pros/distance.hpp"

@@ -3,10 +3,6 @@
 
 // TODO:? Should there be weak symbols for the C api in here as well?
 
-<<<<<<< HEAD
-=======
-#include "stdbool.h"
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #include "stdint.h"
 
 /******************************************************************************/
@@ -45,11 +41,7 @@ namespace c {
  * \return True if the operation was successful, or false otherwise, setting
  * errno values as specified above.
  */
-<<<<<<< HEAD
 bool __attribute__((weak)) lcd_print(int16_t line, const char* fmt, ...)  {
-=======
-bool __attribute__((weak)) lcd_print(__attribute__((unused)) int16_t line, __attribute__((unused)) const char* fmt, ...)  {
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
     return false;
 }
 

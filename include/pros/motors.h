@@ -7,11 +7,7 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
-<<<<<<< HEAD
  * \copyright (c) 2017-2023, Purdue University ACM SIGBots.
-=======
- * \copyright (c) 2017-2024, Purdue University ACM SIGBots.
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -904,19 +900,6 @@ typedef enum motor_gearset_e {
 	E_MOTOR_GEARSET_INVALID = INT32_MAX, // Error: Invalid Gearset
 } motor_gearset_e_t;
 
-<<<<<<< HEAD
-=======
-/**
- * \enum motor_type_e_t
- * Indicates the type of a motor
- */
-typedef enum motor_type_e {
-	E_MOTOR_TYPE_V5 = 0, // 11 watt V5 motor
-	E_MOTOR_TYPE_EXP = 1, // 5.5 watt EXP motor
-	E_MOTOR_TYPE_INVALID = INT32_MAX, // Error: invalid type
-} motor_type_e_t;
-
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #ifdef PROS_USE_SIMPLE_NAMES
 #ifdef __cplusplus
 #define MOTOR_BRAKE_COAST pros::E_MOTOR_BRAKE_COAST
@@ -938,12 +921,6 @@ typedef enum motor_type_e {
 #define MOTOR_GEAR_BLUE pros::E_MOTOR_GEAR_BLUE
 #define MOTOR_GEAR_600 pros::E_MOTOR_GEAR_600
 #define MOTOR_GEARSET_INVALID pros::E_MOTOR_GEARSET_INVALID
-<<<<<<< HEAD
-=======
-#define MOTOR_TYPE_V5 pros::E_MOTOR_TYPE_V5
-#define MOTOR_TYPE_EXP pros::E_MOTOR_TYPE_EXP
-#define MOTOR_TYPE_INVALID pros::E_MOTOR_TYPE_INVALID
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #else
 #define MOTOR_BRAKE_COAST E_MOTOR_BRAKE_COAST
 #define MOTOR_BRAKE_BRAKE E_MOTOR_BRAKE_BRAKE
@@ -964,12 +941,6 @@ typedef enum motor_type_e {
 #define MOTOR_GEAR_BLUE E_MOTOR_GEAR_BLUE
 #define MOTOR_GEAR_600 E_MOTOR_GEAR_600
 #define MOTOR_GEARSET_INVALID E_MOTOR_GEARSET_INVALID
-<<<<<<< HEAD
-=======
-#define MOTOR_TYPE_V5 E_MOTOR_TYPE_V5
-#define MOTOR_TYPE_EXP E_MOTOR_TYPE_EXP
-#define MOTOR_TYPE_INVALID E_MOTOR_TYPE_INVALID
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #endif
 #endif
 
@@ -1056,11 +1027,7 @@ namespace c {
  *   }
  * 
  *   motor_set_zero_position(1, 80);
-<<<<<<< HEAD
  *   motor_move_absolute(1, 100, 100); // Moves 80 units forward
-=======
- *   motor_move_absolute(1, 100, 100); // Moves 20 units forward
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
  *   while (!((motor_get_position(1) - 100 < 105) && (motor_get_position(1) - 100 > 95))) {
  *     delay(2);
  *   }
@@ -1361,33 +1328,6 @@ motor_gearset_e_t motor_get_gearing(int8_t port);
  */
 int32_t motor_get_voltage_limit(int8_t port);
 
-<<<<<<< HEAD
-=======
-/**
- * Get the type of the motor
- *
- * This function uses the following values of errno when an error state is
- * reached:
- * ENXIO - The given value is not within the range of V5 ports |1-21|
- * ENODEV - The port cannot be configured as a motor
- *
- * \param port
- *        The V5 port number from 1 to 21, or from -21 to -1 for reversed motors
- *
- * \return One of motor_type_e_t according to the type of the motor, or
- * E_MOTOR_TYPE_INVALID if the operation failed.
- *
- * \b Example
- * \code
- * void initialize() {
- *   printf("Motor Type: %d\n", motor_get_type(1));
- *   // Prints the type of the motor
- * }
- * \endcode
- */
-motor_type_e_t motor_get_type(int8_t port);
-
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 ///@}
 
 ///@}

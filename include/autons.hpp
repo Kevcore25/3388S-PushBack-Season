@@ -1,14 +1,10 @@
-<<<<<<< HEAD
 // #pragma once
-=======
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #include "lemlib/chassis/chassis.hpp"
 #include "main.h"
 #include "pros/adi.hpp"
 #include "pros/device.hpp"
 #include "pros/rtos.hpp"
 
-<<<<<<< HEAD
 inline int team = 1;
 inline bool elim = false;
 
@@ -560,7 +556,3 @@ inline void soloAWPBlue() {
 
 
 }
-=======
-inline bool redTeam = true;
-inline bool elim = false;
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd

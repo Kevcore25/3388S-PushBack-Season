@@ -83,11 +83,7 @@ typedef int16_t lv_coord_t;
 #define LV_MEM_CUSTOM      0
 #if LV_MEM_CUSTOM == 0
 /* Size of the memory used by `lv_mem_alloc` in bytes (>= 2kB)*/
-<<<<<<< HEAD
 #  define LV_MEM_SIZE    (32U * 1024U)
-=======
-#  define LV_MEM_SIZE    (10U * 1024U * 1024U)
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 
 /* Compiler prefix for a big array declaration */
 #  define LV_MEM_ATTR
@@ -221,18 +217,6 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h" */
 typedef void * lv_fs_drv_user_data_t;
 #endif
 
-<<<<<<< HEAD
-=======
-#define LV_USE_FS_STDIO 1
-#define LV_FS_STDIO_LETTER 'S'
-#define LV_FS_STDIO_PATH "/usd/"
-#define LV_FS_STDIO_CACHE_SIZE 0
-
-#define LV_USE_PNG 1
-#define LV_USE_GIF 1
-#define LV_USE_SJPG 1
-
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 /*1: Add a `user_data` to drivers and objects*/
 #define LV_USE_USER_DATA        1
 
@@ -259,11 +243,7 @@ typedef void * lv_fs_drv_user_data_t;
  * With complex image decoders (e.g. PNG or JPG) caching can save the continuous open/decode of images.
  * However the opened images might consume additional RAM.
  * Set it to 0 to disable caching */
-<<<<<<< HEAD
 #define LV_IMG_CACHE_DEF_SIZE       1
-=======
-#define LV_IMG_CACHE_DEF_SIZE       (8U * 1024U)
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 
 /*Declare the type of the user data of image decoder (can be e.g. `void *`, `int`, `struct`)*/
 typedef void * lv_img_decoder_user_data_t;
@@ -334,11 +314,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  *===============*/
 
 /*1: Enable the log module*/
-<<<<<<< HEAD
 #define LV_USE_LOG      0
-=======
-#define LV_USE_LOG      1
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #if LV_USE_LOG
 /* How important log should be added:
  * LV_LOG_LEVEL_TRACE       A lot of logs to give detailed information
@@ -351,11 +327,7 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 
 /* 1: Print the log with 'printf';
  * 0: user need to register a callback with `lv_log_register_print_cb`*/
-<<<<<<< HEAD
 #  define LV_LOG_PRINTF   0
-=======
-#  define LV_LOG_PRINTF   1
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #endif  /*LV_USE_LOG*/
 
 /*=================
@@ -411,7 +383,6 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  * https://fonts.google.com/specimen/Montserrat  */
 #define LV_FONT_MONTSERRAT_8     0
 #define LV_FONT_MONTSERRAT_10    1
-<<<<<<< HEAD
 #define LV_FONT_MONTSERRAT_12    0
 #define LV_FONT_MONTSERRAT_14    1
 #define LV_FONT_MONTSERRAT_16    0
@@ -419,21 +390,11 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 #define LV_FONT_MONTSERRAT_20    1
 #define LV_FONT_MONTSERRAT_22    0
 #define LV_FONT_MONTSERRAT_24    0
-=======
-#define LV_FONT_MONTSERRAT_12    1
-#define LV_FONT_MONTSERRAT_14    1
-#define LV_FONT_MONTSERRAT_16    1
-#define LV_FONT_MONTSERRAT_18    1
-#define LV_FONT_MONTSERRAT_20    1
-#define LV_FONT_MONTSERRAT_22    0
-#define LV_FONT_MONTSERRAT_24    1
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 #define LV_FONT_MONTSERRAT_26    0
 #define LV_FONT_MONTSERRAT_28    0
 #define LV_FONT_MONTSERRAT_30    1
 #define LV_FONT_MONTSERRAT_32    0
 #define LV_FONT_MONTSERRAT_34    0
-<<<<<<< HEAD
 #define LV_FONT_MONTSERRAT_36    0
 #define LV_FONT_MONTSERRAT_38    0
 #define LV_FONT_MONTSERRAT_40    1
@@ -441,15 +402,6 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
 #define LV_FONT_MONTSERRAT_44    0
 #define LV_FONT_MONTSERRAT_46    0
 #define LV_FONT_MONTSERRAT_48    0
-=======
-#define LV_FONT_MONTSERRAT_36    1
-#define LV_FONT_MONTSERRAT_38    0
-#define LV_FONT_MONTSERRAT_40    1
-#define LV_FONT_MONTSERRAT_42    1
-#define LV_FONT_MONTSERRAT_44    0
-#define LV_FONT_MONTSERRAT_46    0
-#define LV_FONT_MONTSERRAT_48    1
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 
 /* Demonstrate special features */
 #define LV_FONT_MONTSERRAT_12_SUBPX      0
@@ -543,11 +495,6 @@ typedef void * lv_font_user_data_t;
 #define LV_THEME_DEFAULT_FONT_SUBTITLE      &lv_font_montserrat_10
 #define LV_THEME_DEFAULT_FONT_TITLE         &lv_font_montserrat_30
 
-<<<<<<< HEAD
-=======
-#define CONFIG_LV_THEME_DEFAULT_DARK 1
-
->>>>>>> 1d9f8e89a47b9fdcfcd5046e5cc23ef5a95901bd
 /*=================
  *  Text settings
  *=================*/
