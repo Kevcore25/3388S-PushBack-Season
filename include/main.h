@@ -30,6 +30,7 @@
 #include "pros/distance.hpp"
 #include "pros/motors.h"
 #include "pros/optical.hpp"
+#include "pros/rotation.hpp"
 #include "pros/rtos.hpp"
 #define PROS_USE_SIMPLE_NAMES
 
@@ -78,37 +79,31 @@ void opcontrol(void);
 
 inline bool debug = true;
 
-inline int fullIntake = 0;
-inline int bottomIntake = 0;
-inline int upperIntake = 0;
+inline int intake = 0;
 inline bool usingIntake = false;
 
-inline pros::MotorGroup left_motors({-6, -7, -2}, pros::MotorGearset::blue);
-inline pros::MotorGroup right_motors({4, 19, 11}, pros::MotorGearset::blue);
+inline pros::MotorGroup left_motors({-20, -19, -18}, pros::MotorGearset::blue);
+inline pros::MotorGroup right_motors({7, 9, 10}, pros::MotorGearset::blue);
 
-inline pros::Motor outakeMotor(8, pros::MotorGearset::blue);
-inline pros::MotorGroup intakeMotor({-9, 10}, pros::MotorGearset::blue);
+inline pros::MotorGroup intakeMotor({-11, 1}, pros::MotorGearset::blue);
 
-inline pros::Motor adjustableMotor(5, pros::MotorGearset::blue);
-
-inline pros::Imu imu(14);
-inline pros::adi::DigitalOut intakePiston('E');
-inline pros::adi::DigitalOut gutter('A');
-inline pros::adi::DigitalOut doorMid('H');
-inline pros::adi::DigitalOut wing('B');
+inline pros::Imu imu(2);
+inline pros::adi::DigitalOut adjustableRuiguan('H');
+inline pros::adi::DigitalOut gutter('G');
+inline pros::adi::DigitalOut wing('A');
 
 // inline pros::Optical ballDetector(3);
-inline pros::Distance ballDetector(11);
+inline pros::Optical ballDetector(17);
 
-inline pros::Rotation verticalTrackingWheel(21);
-
+// inline pros::Rotation verticalTrackingWheel(20);
+inline pros::Rotation horizontalTrackingWheel(21);
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 inline lemlib::Drivetrain drivetrain(
     &left_motors,
     &right_motors,
     12,
-    lemlib::Omniwheel::NEW_325,
+    3.2,
     450,
     2
 );
@@ -120,22 +115,22 @@ First, we need to determine the range of steady-state error after a motion. To d
 */
 
 inline lemlib::ControllerSettings lateral_controller(
-    6, // proportional gain (kP)
-    0, // integral gain (kI)
-    20, // derivative gain (kD)
-    0, // anti windup
+    5.8,// proportional gain (kP)
+    0.6, // integral gain (kI)
+    13, // derivative gain (kD)
+    1, // anti windup
     0.5, // small error range, in inches rip its not connected to robo
     100, // small error range timeout, in milliseconds
-    1.5, // large error range, in inches hi im here LOL hi hi hi ni ni ni ninio and i can use the pros terminal (might be adv for u c lkoiok)
-    500, // large error range timeout, in milliseconds
+    1, // large error range, in inches hi im here LOL hi hi hi ni ni ni ninio and i can use the pros terminal (might be adv for u c lkoiok)
+    300, // large error range timeout, in milliseconds
     0 // maximum acceleration (slew) ok thank u kevin
 );
 
 inline lemlib::ControllerSettings angular_controller(
     2.6, // proportional gain (kP) 2.6
     0, // integral gain (kI) 0.001
-    17, // derivative gain (kD) 16.9
-    0, // anti windup
+    16.5, // derivative gain (kD) 16.9
+    1, // anti windup
     1, // small error range, in inches
     100, // small error range timeout, in milliseconds
     3, // large error range, in inches
@@ -143,12 +138,14 @@ inline lemlib::ControllerSettings angular_controller(
     0 // maximum celeration (slew)
 );
 
-inline lemlib::TrackingWheel verticalTracking(&verticalTrackingWheel, lemlib::Omniwheel::NEW_2, 0.4);
+// inline lemlib::TrackingWheel verticalTracking(&verticalTrackingWheel, lemlib::Omniwheel::NEW_2, 0.);
+inline lemlib::TrackingWheel horizontalTracking(&horizontalTrackingWheel, 2.75, -1);
 
 inline lemlib::OdomSensors sensors(
-    &verticalTracking, // vertical tracking wheel 1, set to null
+    // &verticalTracking, // vertical tracking wheel 1, set to null
+    nullptr,
     nullptr, // vertical tracking wheel 2, set to nullptr as we are using IMEs
-    nullptr, // horizontal tracking wheel 1
+    &horizontalTracking, // horizontal tracking wheel 1
     nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
     &imu//&imu // inertial sensor
 );
@@ -184,7 +181,6 @@ extern lemlib::Drivetrain drivetrain;
 extern lemlib::ControllerSettings lateral_controller;
 extern lemlib::ControllerSettings angular_controller;
 
-extern lemlib::TrackingWheel horizontalTracking;
 
 extern lemlib::OdomSensors sensors;
 
@@ -253,6 +249,9 @@ inline void move_forward(float inches, int timeout, bool async = false, lemlib::
     float x = cos(angle) * inches + chassis.getPose().x;
     float y = sin(angle) * inches + chassis.getPose().y;
     
+    // To prevent user error, just simply check
+    chassis.waitUntilDone();
+
     chassis.moveToPoint(x, y, timeout, params, async);
 }
 
@@ -261,8 +260,8 @@ inline void move_to_relative_point(float x, float y, int timeout, bool async = f
     chassis.moveToPoint(chassis.getPose().x + x, chassis.getPose().y + y, timeout, params, async);
 }
 
-inline void trapdoor(bool value) {
-    doorMid.set_value(value);
+inline void ruiguanChange(bool upordown){
+    adjustableRuiguan.set_value(upordown);
 }
 
 inline void wait_eject_amount(int amount, int timeout=3000) {
@@ -272,41 +271,48 @@ inline void wait_eject_amount(int amount, int timeout=3000) {
     bool ball = false;
     int i = 0;
     while (amount > 0 && i < timeout) {
-        int prox = ballDetector.get_distance();
+        int prox = ballDetector.get_proximity();
+        controller.print(0, 0, "AMT: %d | P: %d         ", amount, prox);
 
-        if (prox < 35) {
+        // PUT WING DOWN AFTER LAST
+        if (amount == 1) {
+            wing.set_value(0);
+            intake = 75;
+        }
+
+        if (prox > 200) {
             ball = true;
         } else if (ball) {
             ball = false;
             amount--;
+
+            if (amount == 0) break;
         }
         pros::delay(20);
         i += 20;
     }
-
-    // Add a delay for it to eject
-    pros::delay(10);
     
 }
 
-inline void eject_amount_thread(int amount, int timeout = 3000) {
-    pros::Task ejectTask([&]() {
-        usingIntake = true;
-        fullIntake = 100;
-        wait_eject_amount(amount, timeout);
-        fullIntake = 0;
-        usingIntake = false;
-    });
+// inline void eject_amount_thread(int amount, int timeout = 3000) {
+//     pros::Task ejectTask([&]() {
+//         usingIntake = true;
+//         fullIntake = 100;
+//         wait_eject_amount(amount, timeout);
+//         fullIntake = 0;
+//         usingIntake = false;
+//     });
 
-}
+// }
 
-inline void eject_amount_stop(int amount, int timeout = 3000) {
+inline void eject_amount(int amount, int timeout = 3000) {
     usingIntake = true;
-    fullIntake = 100;
+    intake = 100;
+    wing.set_value(1);
     wait_eject_amount(amount, timeout);
-    fullIntake = 0;
-    pros::delay(100);
+    intake = 0;
     usingIntake = false;
+    wing.set_value(0);
 }
 
 

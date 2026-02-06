@@ -12,10 +12,12 @@
 // #include "robodash/views/selector.hpp"
 #include "autons.hpp"
 #include <algorithm>
+#include <cstddef>
+#include <cstdio>
 
 bool imudc = false;
 bool useBoth = true;
-
+bool ran = false;
 // rd::Console console;
 
 // rd::Selector selector({
@@ -27,8 +29,10 @@ bool useBoth = true;
 // });
 
 
-void (*autonFunc[])() = {soloAWP, leftAuton, rightAuton};
-std::string autonStr[] = {"Solo AWP", "Left Auton", "Right AUton"};
+void nullfunc() {}
+
+void (*autonFunc[])() = {nullfunc, soloAWP, leftAuton, rightAuton};
+std::string autonStr[] = {"Nothing", "Solo AWP", "Left Auton", "Right AUton"};
 int autonIndex = 0;
 
 void initialize() {
@@ -37,16 +41,34 @@ void initialize() {
 //   catch (std::exception e) {}
 
     chassis.calibrate();
-	// ballDetector.set_led_pwm(50);
+	ballDetector.set_led_pwm(50);
+	ballDetector.set_integration_time(3);
+
 
 	pros::Task intakeTask([]() {
+		int jamAmt = 0;
+		int jam2Amt = 0;
 		while (true) {
-			intakeMotor.move(bottomIntake * 1.27);
-			outakeMotor.move(upperIntake  * 1.27);
+			intakeMotor.move(intake * 1.27);
+
+			if (
+				(intake == 100 && intakeMotor.get_actual_velocity() < 5) ||
+				(jamAmt < 0) && (jam2Amt < 200)
+			) {
+				jamAmt++;
+				if (jamAmt > 4) {
+					intakeMotor.move(intake * -1.27);
+					pros::delay(100);
+					jamAmt = -10;
+					jam2Amt += 50;
+				}
+			}
+
+
+			if (jam2Amt > 0) jam2Amt--;
 
 			pros::delay(20);
 		}
-
 	});
 
 
@@ -62,7 +84,8 @@ void initialize() {
 				controller.print(0, 0, "Intake2: %.0fC ", intakeMotor.get_temperature());
 			} else {
 				// DEBUG
-				if (debug) {
+				if (debug && ran) {
+					
 					controller.print(0, 0, "%.1f %.1f %.0f    ", chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
 					// std::cout << chassis.getPose().x << " " << chassis.getPose().y << " " << chassis.getPose().theta << "\n";
 					// controller.print(0, 0, "%din   ", ballDetector.get_distance());
@@ -80,24 +103,27 @@ void initialize() {
 		}
 	});
 
-	while (true) {
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
-			autonIndex++;
-			if (autonIndex >= sizeof(autonStr)) autonIndex = 0;
-			controller.print(0, 0, "%s     ", autonStr[autonIndex]);
-		}
-		else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-			autonIndex--;
-			if (autonIndex <= 0) autonIndex = sizeof(autonStr);
-			controller.print(0, 0, "%s     ", autonStr[autonIndex]);
-		}
+	pros::Task autonTask([]() {
 
-		pros::delay(100);
-	}
+		while (true) {
+			if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
+				autonIndex++;
+				if (autonIndex >= sizeof(autonStr)) autonIndex = 0;
+				controller.print(0, 0, "%s     ", autonStr[autonIndex]);
+			}
+			else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+				autonIndex--;
+				if (autonIndex <= 0) autonIndex = sizeof(autonStr);
+				controller.print(0, 0, "%s     ", autonStr[autonIndex]);
+			}
+
+			pros::delay(100);
+		}
+	});
 }
 
 void testdrive() {
-	int motors[] = {};
+	int motors[] = {-20, -19, -18, 7,9,10};
 	for (int motor : motors) {
 	 	pros::Motor m(motor, pros::MotorGearset::blue);
 		m.move(127);
@@ -141,19 +167,19 @@ void competition_initialize() {
  
 
 bool gutterOn = false;
-bool doorOn = false;
+bool ruiguan = false;
 bool intakeOn = false;
 bool intakeLimiter = false;
 bool wingOn = false;
 
 
-
 void autonomous() {
-	
-	// skills5();/
-	// soloAWP();
-	// selector.run_auton();
-	leftAuton();
+	ran = true;
+	soloAWP();
+	// leftAuton();
+	// chassis.moveToPoint(0, 48, 10000);
+	// autonFunc[autonIndex]();
+	// skills5();
 }
 
 bool onHoldMode = false;
@@ -162,10 +188,10 @@ bool nomove = false;
 
 
 void opcontrol() {	
-
-	// try {Gif gif("/usd/mygif.gif", lv_scr_act());}
-	// catch (...) {}
-
+	ran = true;
+	// chassis.moveToPoint(0, 24, 10000);
+	// pros::delay(10000);
+	
 	usingIntake = false;
 	while (true) {
 		// Variables
@@ -201,67 +227,73 @@ void opcontrol() {
 		} 
 
 
-		//X: Intake limiter
-		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
-			eject_amount_stop(3, 3000);
+		// //X: Intake limiter
+		// if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
+		// 	eject_amount_stop(3, 3000);
 
 		// Drive function (Lemlib)
 		chassis.arcade(leftY, rightX, false, 0.4);
 
 		// Activate intake
 		// if (!usingIntake) {
-		bottomIntake = r2 * 100 + l2 * -100;
-		upperIntake = r1 * 100 + l1 * -100;
+		intake = r2 * 100 + l2 * -100 + r1 * 100 + l1 * -100;
 		// }
+
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+			wingOn = true;
+			wing.set_value(wingOn);
+		}
+
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+			wingOn = false;
+			wing.set_value(wingOn);
+		}
 
 		// BUTTONS
 
 		// A: Gutter activation
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
 			gutterOn = !gutterOn;
 			gutter.set_value(gutterOn);
 		}
-		// B: Door activation
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-			doorOn = !doorOn;
-			trapdoor(doorOn);
+		// B: ruiguan activation
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
+			ruiguan = !ruiguan;
+			ruiguanChange(ruiguan);
 		}
 		
-		//C: Intake piston activation (park)
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-			intakeOn = !intakeOn;
-			intakePiston.set_value(intakeOn);
-		}
+		// if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT))
+		// 	testdrive();		// //C: Intake piston activation (park)
+		// if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT))
+		// 	eject_amount(3, 5000);
+		// if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+		// 	intakeOn = !intakeOn;
+		// 	intakePiston.set_value(intakeOn);
+		// }
 
 		//D: Wing activation
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
 			wingOn = !wingOn;
 			wing.set_value(wingOn);
 		}
 		// Y: Switch between hold mode
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
-			onHoldMode = !onHoldMode;
+		// if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
+		// 	onHoldMode = !onHoldMode;
 		
 
 		//X: Intake limiter
 		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_X))
 			intakeMotor.move(-45);
 
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-			move_forward(12, 500, false, {.maxSpeed=50});
-			pros::delay(300);
-			move_forward(-48, 800, false, {.minSpeed=127});
-		}
-
 		// Adjustable motor
-		if (abs(rightX) < 10 && abs(rightY) > 10) 
-			adjustableMotor.move(rightY);
-		else
-			adjustableMotor.move(0);
+		// if (abs(rightX) < 10 && abs(rightY) > 10) 
+		// 	adjustableMotor.move(rightY);
+		// else
+		// 	adjustableMotor.move(0);
 
 		// If controller is disconnected then set the robot to hold mode
 		// It won us provs LOL
-		if (!controller.is_connected() || onHoldMode || (gutterOn && fullIntake > 0)) {
+		if (!controller.is_connected() || onHoldMode || (gutterOn)) {
 			chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
 		} else {
 			chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
