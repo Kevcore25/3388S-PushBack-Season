@@ -83,7 +83,7 @@ inline void rightAuton() {
 inline void soloAWP() {
    // Tune the major. Make sure center (0, 0) is the center wall of the field
    // chassis.setPose(12, 24, 90);
-   chassis.setPose(13, 24, 90);
+   chassis.setPose(14, 24, 90);
    chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
    adjustableRuiguan.set_value(0);
 
@@ -97,16 +97,16 @@ inline void soloAWP() {
 
    chassis.moveToPoint(46, 24, 1000);
    chassis.turnToHeading(180, 600);
-   chassis.moveToPoint(48, 4, 800, {.maxSpeed=60});
+   chassis.moveToPoint(48, 4, 800, {.maxSpeed=50});
    chassis.waitUntilDone();
    pros::delay(500);
 
    // Score to the tube
-   chassis.moveToPoint(50, 46, 1000, {.forwards=false, .maxSpeed=70});
+   chassis.moveToPoint(49, 46, 1000, {.forwards=false, .maxSpeed=70});
    chassis.waitUntilDone();
    gutter.set_value(0);
    wing.set_value(1);
-   eject_amount(4, 1500);
+   eject_amount(4, 1700);
    wing.set_value(0);
 
    chassis.turnToHeading(-75, 750);
@@ -114,36 +114,36 @@ inline void soloAWP() {
    chassis.waitUntilDone();
    wing.set_value(1);
    chassis.moveToPoint(-24, 36, 4000);
-   chassis.waitUntil(20);
+   chassis.waitUntil(15);
    wing.set_value(0);
-   chassis.turnToHeading(-135, 700);
+   chassis.turnToHeading(-130, 700);
    chassis.waitUntilDone();
-   chassis.moveToPose(-8, 51, -135, 2000, {.forwards=false, .minSpeed=80});
+   chassis.moveToPose(-7.5, 50.5, -135, 2000, {.forwards=false, .minSpeed=80});
    chassis.waitUntil(5);
    adjustableRuiguan.set_value(1);
    chassis.waitUntilDone();
    wing.set_value(1);
-   eject_amount(3, 1500);
+   eject_amount(4, 1500);
    wing.set_value(0);
    adjustableRuiguan.set_value(0);
 
-   chassis.moveToPose(-42, -10, 180, 1800, {.lead=0.4, .minSpeed=70, .earlyExitRange=50});
+   chassis.moveToPose(-40, -10, 180, 1800, {.lead=0.45, .minSpeed=70, .earlyExitRange=50});
    gutter.set_value(1);
    intake = 100;
-   chassis.moveToPoint(-42, -4, 500, {.maxSpeed=60});
+   chassis.moveToPoint(-41, -4, 500, {.maxSpeed=50});
    chassis.waitUntilDone();
    pros::delay(100);
-   chassis.moveToPoint(-43, 42, 1000, {.forwards=false, .maxSpeed=80});
+   chassis.moveToPoint(-41, 42, 1000, {.forwards=false, .maxSpeed=80});
    chassis.waitUntilDone();
-   wing.set_value(1);
-   eject_amount(4, 2000);
+   wing.set_value(1);                                                                                                                                                                         
+   eject_amount(5, 2000);
 }
 
 
 
 inline void leftAuton() {
    // Tune the major. Make sure center (0, 0) is the center wall of the field
-   chassis.setPose(-18, 24, 0);
+   chassis.setPose(-16, 24, 0);
    chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
    adjustableRuiguan.set_value(0);
 
@@ -156,7 +156,7 @@ inline void leftAuton() {
    pros::delay(1000);
 
    // Score to mid
-   chassis.turnToHeading(-135, 700);
+   chassis.turnToHeading(-135, 1000);
    // chassis.moveToPoint(-10, 54, 2000, {.forwards=false});
    chassis.waitUntilDone();
    gutter.set_value(0);
@@ -169,14 +169,16 @@ inline void leftAuton() {
    // Go to the matchloader
    adjustableRuiguan.set_value(0);
    gutter.set_value(1);
-   chassis.moveToPose(-47, 0, 180, 2000, {.lead=0.4, .minSpeed=80, .earlyExitRange=50});
-   chassis.moveToPoint(-46, 0, 500);
+   chassis.moveToPose(-48, 0, 180, 2000, {.lead=0.5,.maxSpeed=100, .minSpeed=50,  .earlyExitRange=50});
+   chassis.moveToPoint(-46, 0, 500, {.maxSpeed=50});
    intake = 100;
    chassis.waitUntilDone();
    pros::delay(500);
 
    // Score
-   chassis.moveToPoint(-46, 44, 1000, {.forwards=false});
+   chassis.turnToHeading(180, 700);
+   // move_forward(-44, 2000);
+   chassis.moveToPoint(-46, 44, 1000, {.forwards=false, .maxSpeed=70});
    chassis.waitUntilDone();
    wing.set_value(1);
    eject_amount(3, 2000);

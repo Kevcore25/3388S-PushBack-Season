@@ -29,20 +29,44 @@ bool ran = false;
 // });
 
 
+
 void nullfunc() {}
 
-void (*autonFunc[])() = {nullfunc, soloAWP, leftAuton, rightAuton};
-std::string autonStr[] = {"Nothing", "Solo AWP", "Left Auton", "Right AUton"};
+void (*autonFunc[])() = {nullfunc, soloAWP, leftAuton};
+std::string autonStr[] = {"Nothing", "Solo AWP", "Left Auton"};
 int autonIndex = 0;
+
+
+void update() {
+	pros::lcd::print(3, "Selected: %s", autonStr[autonIndex]);
+}
+
+void left() {
+	autonIndex -= 1;
+	if (autonIndex < 0) autonIndex = std::size(autonStr) - 1;
+	update();
+}
+
+void right() {
+	autonIndex += 1;
+	if (autonIndex >= std::size(autonStr)) autonIndex = 0;
+	update();
+}
 
 void initialize() {
 
 //   try {selector.focus();} 
-//   catch (std::exception e) {}
+//   cach (std::exception e) {}
 
     chassis.calibrate();
 	ballDetector.set_led_pwm(50);
 	ballDetector.set_integration_time(3);
+
+	pros::lcd::initialize();
+	pros::lcd::register_btn0_cb(left);
+
+	pros::lcd::register_btn2_cb(right);
+	pros::lcd::register_btn1_cb(autonomous);
 
 
 	pros::Task intakeTask([]() {
@@ -175,7 +199,9 @@ bool wingOn = false;
 
 void autonomous() {
 	ran = true;
-	soloAWP();
+	// leftAuton();
+	// soloAWP();
+	autonFunc[autonIndex]();
 	// leftAuton();
 	// chassis.moveToPoint(0, 48, 10000);
 	// autonFunc[autonIndex]();
@@ -255,11 +281,20 @@ void opcontrol() {
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
 			gutterOn = !gutterOn;
 			gutter.set_value(gutterOn);
+			if (gutterOn){
+				ruiguan = false;
+				ruiguanChange(ruiguan);
+			}
 		}
 		// B: ruiguan activation
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
 			ruiguan = !ruiguan;
 			ruiguanChange(ruiguan);
+			if (ruiguan){
+				gutterOn = false;
+				gutter.set_value(gutterOn);
+			}
+			wing.set_value(0);
 		}
 		
 		// if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT))
