@@ -78,32 +78,33 @@ void competition_initialize(void);
 void opcontrol(void);
 
 inline bool debug = true;
-
+inline bool willWing = false;
 inline int intake = 0;
 inline bool usingIntake = false;
 
 inline pros::MotorGroup left_motors({-20, -19, -18}, pros::MotorGearset::blue);
 inline pros::MotorGroup right_motors({7, 9, 10}, pros::MotorGearset::blue);
 
-inline pros::MotorGroup intakeMotor({-11, 1}, pros::MotorGearset::blue);
+inline pros::MotorGroup intakeMotor({-17, 6}, pros::MotorGearset::blue);
 
-inline pros::Imu imu(2);
-inline pros::adi::DigitalOut adjustableRuiguan('H');
+inline pros::Imu imu(14);
+inline pros::adi::DigitalOut adjustableRuiguan('A');
 inline pros::adi::DigitalOut gutter('G');
-inline pros::adi::DigitalOut wing('A');
+inline pros::adi::DigitalOut wing('B');
+inline pros::adi::DigitalOut stopper('H');
 
 // inline pros::Optical ballDetector(3);
-inline pros::Optical ballDetector(17);
+inline pros::Optical ballDetector(3);
 
-// inline pros::Rotation verticalTrackingWheel(20);
-inline pros::Rotation horizontalTrackingWheel(21);
+inline pros::Rotation verticalTrackingWheel(11);
+inline pros::Rotation horizontalTrackingWheel(-4);
 inline pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 inline lemlib::Drivetrain drivetrain(
     &left_motors,
     &right_motors,
     12,
-    3.2,
+    lemlib::Omniwheel::NEW_325,
     450,
     2
 );
@@ -114,37 +115,62 @@ kI is the integral gain. It’s used to correct steady-state error. This is usua
 First, we need to determine the range of steady-state error after a motion. To do that, record the average steady-state error. To record the average steady state error, move the robot in motions between 10 degrees and 180 degrees and record the average steady-state error. Then increase that by 50%. This is the anti-windup range. Enter the new anti-windup range into the settings. But what is an anti-windup range? An anti-windup range is a range where the integral component of the controller can be increased. If error is outside of this range, integral will be set to 0. This is to prevent overshooting the target for long motions.
 */
 
-inline lemlib::ControllerSettings lateral_controller(
-    5.8,// proportional gain (kP)
-    0.6, // integral gain (kI)
-    13, // derivative gain (kD)
-    1, // anti windup
-    0.5, // small error range, in inches rip its not connected to robo
-    100, // small error range timeout, in milliseconds
-    1, // large error range, in inches hi im here LOL hi hi hi ni ni ni ninio and i can use the pros terminal (might be adv for u c lkoiok)
-    300, // large error range timeout, in milliseconds
-    0 // maximum acceleration (slew) ok thank u kevin
-);
 
+inline lemlib::ControllerSettings lateral_controller(
+    4.6,// proportional gain (kP)
+    1, // integral gain (kI)
+    7.1, // derivative gain (kD)
+    0.3, // anti windup
+    0.5,
+    100,
+    1,
+    300,
+    0
+);
 inline lemlib::ControllerSettings angular_controller(
-    2.6, // proportional gain (kP) 2.6
-    0, // integral gain (kI) 0.001
-    16.5, // derivative gain (kD) 16.9
-    1, // anti windup
+    1.7, // proportional gain (kP)
+    1, // integral gain (kI)
+    11, // derivative gain (kD)
+    3, // anti windup
     1, // small error range, in inches
     100, // small error range timeout, in milliseconds
-    3, // large error range, in inches
+    0.5, // large error range, in inches
     300, // large error range timeout, in milliseconds
-    0 // maximum celeration (slew)
+    0 // maximum acceleration (slew)
 );
 
-// inline lemlib::TrackingWheel verticalTracking(&verticalTrackingWheel, lemlib::Omniwheel::NEW_2, 0.);
-inline lemlib::TrackingWheel horizontalTracking(&horizontalTrackingWheel, 2.75, -1);
+// inline lemlib::ControllerSettings lateral_controller(
+//     5.35,// proportional gain (kP)
+//     0.3, // integral gain (kI)
+//     18, // derivative gain (kD)
+//     0.57, // anti windup
+//     0.5,
+//     150,
+//     1,
+//     300,
+//     30
+// );
+
+// inline lemlib::ControllerSettings angular_controller(
+//     2, // proportional gain (kP) 2.6
+//     0.3, // integral gain (kI) 0.001
+//     14.5, // derivative gain (kD) 16.9
+//     4,
+//     0.5,
+//     200,
+//     1,
+//     500,
+//     80
+// );
+
+inline lemlib::TrackingWheel verticalTracking(&verticalTrackingWheel, 1.98, -1.633858);
+inline lemlib::TrackingWheel horizontalTracking(&horizontalTrackingWheel, 1.98, -0.511811);
 
 inline lemlib::OdomSensors sensors(
     // &verticalTracking, // vertical tracking wheel 1, set to null
-    nullptr,
+    &verticalTracking,
     nullptr, // vertical tracking wheel 2, set to nullptr as we are using IMEs
+    // nullptr,
     &horizontalTracking, // horizontal tracking wheel 1
     nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
     &imu//&imu // inertial sensor
@@ -153,16 +179,16 @@ inline lemlib::OdomSensors sensors(
 
 // input curve for throttle input during driver control
 inline lemlib::ExpoDriveCurve throttle_curve(
-    5, // joystick deadband out of 127
-    10, // minimum output where drivetrain will move out of 127
-    1.021 // expo curve gain
+    3, // joystick deadband out of 127
+    0, // minimum output where drivetrain will move out of 127
+    1.019 // expo curve gain
 );
 
 // input curve for steer input during driver control
 inline lemlib::ExpoDriveCurve steer_curve(
     3, // joystick deadband out of 127
     0, // minimum output where drivetrain will move out of 127
-    1.021 // expo curve gain
+    1.016 // expo curve gain
 );
 
 inline lemlib::Chassis chassis(
@@ -180,7 +206,6 @@ extern lemlib::Drivetrain drivetrain;
 
 extern lemlib::ControllerSettings lateral_controller;
 extern lemlib::ControllerSettings angular_controller;
-
 
 extern lemlib::OdomSensors sensors;
 
@@ -215,49 +240,51 @@ inline float angularInputRemap(float input, float scale) {
     return input;
 }
 
-inline void arcade(int throttle, int angular) {
-    int deadzone = 5;
+// inline void arcade(int throttle, int angular) {
+//     int deadzone = 5;
 
-    throttle = (abs(throttle) <= deadzone) ? 0 : throttle;
-    angular = (abs(angular) <= deadzone) ? 0 : angular;
+//     throttle = (abs(throttle) <= deadzone) ? 0 : throttle;
+//     angular = (abs(angular) <= deadzone) ? 0 : angular;
 
-    throttle = lateralInputRemap(throttle, 1.021);
+//     throttle = lateralInputRemap(throttle, 1.021);
 
-    angular = angularInputRemap(angular, 7.5) * 0.6;
+//     angular = angularInputRemap(angular, 7.5) * 0.6;
 
-    if (throttle + angular < 100) {
-        angular /= 0.6;
+//     if (throttle + angular < 100) {
+//         angular /= 0.6;
+//     }
+
+//     left_motors.move(throttle + angular);
+// right_motors.move(throttle - angular);
+// }
+
+
+inline void move_forward(float inches, int timeout = -1, bool async = false, lemlib::MoveToPointParams params = {}) {
+    // To prevent user error, just simply check
+    if (chassis.isInMotion()) chassis.waitUntilDone();
+    
+    if (timeout == -1) {
+        timeout = inches * 50  + 100;
     }
 
-    left_motors.move(throttle + angular);
-right_motors.move(throttle - angular);
-}
-
-
-inline void move_forward(float inches, int timeout, bool async = false, lemlib::MoveToPointParams params = {}) {
-    bool forwards = true;
-
-    if (inches < 0) {
-        forwards = false;
-    } 
-
-    params.forwards = forwards;
-
+    params.forwards = inches > 0;
 
     double angle = -(chassis.getPose(true).theta) + M_PI_2;
 
     float x = cos(angle) * inches + chassis.getPose().x;
     float y = sin(angle) * inches + chassis.getPose().y;
     
-    // To prevent user error, just simply check
-    chassis.waitUntilDone();
-
     chassis.moveToPoint(x, y, timeout, params, async);
 }
 
 
 inline void move_to_relative_point(float x, float y, int timeout, bool async = false, lemlib::MoveToPointParams params = {}){
     chassis.moveToPoint(chassis.getPose().x + x, chassis.getPose().y + y, timeout, params, async);
+}
+
+
+inline void move_to_relative_pose(float x, float y, int timeout, float theta, lemlib::MoveToPoseParams params = {}, bool async = false){
+    chassis.moveToPose(chassis.getPose().x + x, chassis.getPose().y + y, theta, timeout, params, async);
 }
 
 inline void ruiguanChange(bool upordown){
@@ -276,7 +303,6 @@ inline void wait_eject_amount(int amount, int timeout=3000) {
 
         // PUT WING DOWN AFTER LAST
         if (amount == 1) {
-            wing.set_value(0);
             intake = 75;
         }
 
@@ -308,11 +334,12 @@ inline void wait_eject_amount(int amount, int timeout=3000) {
 inline void eject_amount(int amount, int timeout = 3000) {
     usingIntake = true;
     intake = 100;
-    wing.set_value(1);
+    stopper.set_value(0);
     wait_eject_amount(amount, timeout);
+    pros::delay(200);
     intake = 0;
     usingIntake = false;
-    wing.set_value(0);
+    stopper.set_value(1);
 }
 
 

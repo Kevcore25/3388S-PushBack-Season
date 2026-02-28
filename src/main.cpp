@@ -19,6 +19,7 @@ bool imudc = false;
 bool useBoth = true;
 bool ran = false;
 // rd::Console console;
+int displayTime = 0;
 
 // rd::Selector selector({
 //     {"Solo AWP", soloAWP},
@@ -30,10 +31,12 @@ bool ran = false;
 
 
 
-void nullfunc() {}
+void nullfunc() {
+	move_forward(2, 1000);
+}
 
 void (*autonFunc[])() = {nullfunc, soloAWP, leftAuton};
-std::string autonStr[] = {"Nothing", "Solo AWP", "Left Auton"};
+std::string autonStr[] = {"1in fwd", "Solo AWP", "Left Auton"};
 int autonIndex = 0;
 
 
@@ -57,12 +60,12 @@ void initialize() {
 
 //   try {selector.focus();} 
 //   cach (std::exception e) {}
-
+	pros::lcd::initialize();
     chassis.calibrate();
+	chassis.setPose(0, 0, 0);
 	ballDetector.set_led_pwm(50);
 	ballDetector.set_integration_time(3);
 
-	pros::lcd::initialize();
 	pros::lcd::register_btn0_cb(left);
 
 	pros::lcd::register_btn2_cb(right);
@@ -108,9 +111,9 @@ void initialize() {
 				controller.print(0, 0, "Intake2: %.0fC ", intakeMotor.get_temperature());
 			} else {
 				// DEBUG
-				if (debug && ran) {
-					
-					controller.print(0, 0, "%.1f %.1f %.0f    ", chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
+				if (debug && displayTime == 0) {		
+					pros::lcd::print(1, 0, "X: %.2f | Y: %.2f  |THETA: %.2f    ", chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
+					controller.print(0, 0, "%.1f %.1f %.0f        ", chassis.getPose().x, chassis.getPose().y, chassis.getPose().theta);
 					// std::cout << chassis.getPose().x << " " << chassis.getPose().y << " " << chassis.getPose().theta << "\n";
 					// controller.print(0, 0, "%din   ", ballDetector.get_distance());
 				}
@@ -121,27 +124,9 @@ void initialize() {
     			controller.print(0, 0, "IMU Disconnected");
 		
 
-
+			if (displayTime > 0) displayTime--;
 			// Delay to save resources
-			pros::delay(1000);
-		}
-	});
-
-	pros::Task autonTask([]() {
-
-		while (true) {
-			if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
-				autonIndex++;
-				if (autonIndex >= sizeof(autonStr)) autonIndex = 0;
-				controller.print(0, 0, "%s     ", autonStr[autonIndex]);
-			}
-			else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-				autonIndex--;
-				if (autonIndex <= 0) autonIndex = sizeof(autonStr);
-				controller.print(0, 0, "%s     ", autonStr[autonIndex]);
-			}
-
-			pros::delay(100);
+			pros::delay(200);
 		}
 	});
 }
@@ -198,25 +183,130 @@ bool wingOn = false;
 
 
 void autonomous() {
-	ran = true;
+	stopper.set_value(1);
+	// ran = true;
+	// adjustableRuiguan.set_value(1);
 	// leftAuton();
 	// soloAWP();
-	autonFunc[autonIndex]();
+	// autonFunc[autonIndex]();
+	// move_forward(2, 1000);
+	// chassis.moveToPoint(0, 24, 5000);
+	// chassis.turnToHeading(180, 10000);
 	// leftAuton();
 	// chassis.moveToPoint(0, 48, 10000);
 	// autonFunc[autonIndex]();
 	// skills5();
+	// soloAWP();
+	// skills6();
+	// rightAuton2();
+	// leftAuton();
+	soloAWP();
+	// chassis.turnToHeading(90, 10000);
+	
 }
 
 bool onHoldMode = false;
 int editCounter = 0;
 bool nomove = false;
 
+void display() {
+	controller.print(0, 0, "kP: %.1f kD: %.1f kI: %.1f    ", lateral_controller.kP, lateral_controller.kD, lateral_controller.kI);
+	displayTime = 10;
+}
+
+void tuner() {
+	displayTime = 100;
+
+	int editing = 0;
+	while (true) {
+		const bool left = controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT);
+		const bool right = controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT);
+
+		const bool A = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A);
+		const bool X = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X);
+		const bool B = controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B);
+
+		if (A || X || B) {
+			lemlib::Chassis chassis(
+				drivetrain, // drivetrain settings
+				lateral_controller, // lateral PID settings
+				angular_controller, // angular PID settings
+				sensors,
+				&throttle_curve,
+				&steer_curve
+			);
+			
+			chassis.setPose(0, 0, 0);
+			displayTime = 0;
+			if (A) chassis.moveToPoint(0, 24, 2000);
+			if (X) chassis.moveToPoint(0, 48, 2000);
+			if (B) chassis.moveToPoint(0, 72, 3000);
+			chassis.waitUntilDone();
+		}
+		
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+			editing = 1;
+			controller.print(0, 0, "Editing kP       ");
+			displayTime = 5;
+		}
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+			editing = 2;
+			controller.print(0, 0, "Editing kD       ");
+			displayTime = 5;
+		}
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+			editing = 3;
+			controller.print(0, 0, "Editing kI       ");
+			displayTime = 5;
+		}
+		if (left) {
+			// KP
+			if (editing == 1)  {
+				lateral_controller.kP -= 0.1;
+			}
+			if (editing == 2) {
+				lateral_controller.kD -= 0.1;
+			}
+			if (editing == 3) {
+				lateral_controller.kI -= 0.1;
+			}
+			display();
+		}
+
+		if (right) {
+			// KP
+			if (editing == 1)  {
+				lateral_controller.kP += 0.1;
+			}
+			if (editing == 2) {
+				lateral_controller.kD += 0.1;
+			}
+			if (editing == 3) {
+				lateral_controller.kI += 0.1;
+			}
+			display();
+		}
+
+		if (std::abs(controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y)) > 50 || std::abs(controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X)) > 50) {
+			displayTime = 1;
+			controller.print(0, 0, "Press L1 to exit       ");
+		}
+
+		if (controller.get_digital_new_release(pros::E_CONTROLLER_DIGITAL_L1)) break;
+		if (controller.get_digital_new_release(pros::E_CONTROLLER_DIGITAL_L2)) move_forward(-72, 1000, false, {.maxSpeed=70});
+
+		pros::delay(100);
+	}
+
+
+}
 
 void opcontrol() {	
-	ran = true;
 	// chassis.moveToPoint(0, 24, 10000);
 	// pros::delay(10000);
+	// tuner();
+	tuner();
+	if (willWing) wing.set_value(1);
 	
 	usingIntake = false;
 	while (true) {
@@ -229,28 +319,29 @@ void opcontrol() {
 		const int r1 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
 		const int l2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
 		const int r2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2);
+		const int down = controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN);
 
 		const int rightY = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
 
-		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
-			editCounter++;
-			if (editCounter == 3) {
-				controller.print(0, 0, "Entering EDIT 	");
-			} else if (editCounter == 6) {
-				controller.print(0, 0, "Exiting EDIT	");
-				editCounter = 0;
-			}
-		}
-		if (editCounter >= 3) {
-			if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
-				useBoth = !useBoth;
-				controller.print(0, 0, "ManIntake %s	", useBoth ? "ON" : "OFF");
-			}
-			if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-				debug = !debug;
-				controller.print(0, 0, "Debug %s		", useBoth ? "ON" : "OFF");
-			}
-		} 
+		// if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+		// 	editCounter++;
+		// 	if (editCounter == 3) {
+		// 		controller.print(0, 0, "Entering EDIT 	");
+		// 	} else if (editCounter == 6) {
+		// 		controller.print(0, 0, "Exiting EDIT	");
+		// 		editCounter = 0;
+		// 	}
+		// }
+		// if (editCounter >= 3) {
+		// 	if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+		// 		useBoth = !useBoth;
+		// 		controller.print(0, 0, "ManIntake %s	", useBoth ? "ON" : "OFF");
+		// 	}
+		// 	if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+		// 		debug = !debug;
+		// 		controller.print(0, 0, "Debug %s		", useBoth ? "ON" : "OFF");
+		// 	}
+		// } 
 
 
 		// //X: Intake limiter
@@ -262,17 +353,15 @@ void opcontrol() {
 
 		// Activate intake
 		// if (!usingIntake) {
-		intake = r2 * 100 + l2 * -100 + r1 * 100 + l1 * -100;
+		intake = r2 * 100 + l2 * -100 + r1 * 100 + l1 * -100 + down * 40;
 		// }
 
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-			wingOn = true;
-			wing.set_value(wingOn);
+			stopper.set_value(false);
 		}
 
 		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
-			wingOn = false;
-			wing.set_value(wingOn);
+			stopper.set_value(true);
 		}
 
 		// BUTTONS
@@ -297,8 +386,18 @@ void opcontrol() {
 			wing.set_value(0);
 		}
 		
-		// if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT))
-		// 	testdrive();		// //C: Intake piston activation (park)
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT))
+			// testdrive();		// //C: Intake piston activation (park)
+			eject_amount(3, 3000);
+
+		if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+
+			if (std::abs(chassis.getPose().x + chassis.getPose().y) < 0.1) 
+				chassis.setPose(0, 0, 0);
+			else
+				chassis.setPose(0, 0, chassis.getPose().theta);
+
+		}
 		// if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT))
 		// 	eject_amount(3, 5000);
 		// if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
